@@ -1,0 +1,639 @@
+Marlin固件配置教程
+首先从Marlin固件GitHub下载固件源代码，也可从Makeboard网盘下载。
+Marlin固件主要分为两个版本，一个是1.0.2-2版本，是稳定版，已经一年没怎么更新了，功能比较少，网上的教程基本上都是这个版本的。还有个最新的是1.1.0-RC7版，一直在频繁更新增加新功能。我们现在以1.1.0-RC7版为例讲解Marlin固件配置。
+使用Arduino打开 Configuration.h 文件，Ctrl + F搜索代码中关键字，按说明修改。
+去掉注释是指拔当前行最前面的 // 符号删除，使代码生效，用来开启一些功能。注释掉指给当前行最前面加上 // 符号，使代码失效，用来关闭一些功能。
+
+天猫无门槛优惠券  http://uquanfree.com
+
+固件信息
+STRING_CONFIG_H_AUTHOR 设置固件作者信息，可在串口通信的时候看到。
+SHOW_BOOTSCREEN 如果注释掉这行的话开机就不会显示初始画面，直接进入主界面。
+STRING_SPLASH_LINE1 设置开机屏幕初始画面的第一行的文字，一般设置版本号。
+STRING_SPLASH_LINE2 设置开机屏幕初始画面的第二行的文字，一般设置网站地址。
+
+1
+2
+3
+4
+5
+6
+7
+// User-specified version info of this build to display in [Pronterface, etc] terminal window during
+// startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
+// build by the user have been successfully uploaded into firmware.
+#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
+#define SHOW_BOOTSCREEN
+#define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
+#define STRING_SPLASH_LINE2 WEBSITE_URL // will be shown during bootup in line 2
+注意：以上如果设置文字的话，一定要加上双引号把文字内容括住，如：。
+
+1
+#define STRING_SPLASH_LINE2 "www.makeboard.org" // will be shown during bootup in line 2
+串口波特率
+BAUDRATE 设置串口通信的波特率，一般默认是250000，如果使用Mac或者Linux系统，需要改成115200，因为系统原因波特率上不到250000。对应的切片或联机打印软件也需要给波特率改为设置的值，否则无法连接。
+
+1
+2
+3
+// This determines the communication speed of the printer
+// :[2400,9600,19200,38400,57600,115200,250000]
+#define BAUDRATE 250000
+主板类型
+现在最新版本的Marlin固件固件已经默认设置为Makeboard主板主板类型，无需再更改。如使用其他版本固件，需将 MOTHERBOARD 设置为 BOARD_RAMPS_14_EFB 类型，或者直接设置为类型编号 33。
+
+1
+2
+3
+4
+5
+// The following define selects which electronics board you have.
+// Please choose the name from boards.h that matches your setup
+#ifndef MOTHERBOARD
+#define MOTHERBOARD BOARD_RAMPS_14_EFB
+#endif
+去掉 CUSTOM_MACHINE_NAME 行的注释，设置其值为打印机的名称，比如设置为”Makeboard”，开机打印机就绪后，就会在液晶屏主界面显示 Makeboard ready. 信息。
+
+打印机名称
+1
+2
+3
+// Optional custom name for your RepStrap or other custom machine
+// Displayed in the LCD "Ready" message
+//#define CUSTOM_MACHINE_NAME "3D Printer"
+挤出机数量
+EXTRUDERS 设置挤出机数量，Makeboard Pro主板最多支持2挤出机，Makeboard Mini仅支持1挤出机。
+
+1
+2
+3
+// This defines the number of extruders
+// :[1,2,3,4]
+#define EXTRUDERS 1
+混色打印
+去掉 SINGLENOZZLE 行的注释，可以开启多挤出机混色打印，就是有多个挤出机挤出不同的颜色，但只有一个打印头，可靠切片软件安排不同挤出机颜色的挤出量达到混色的彩色效果。
+
+1
+2
+// For Cyclops or any "multi-extruder" that shares a single nozzle.
+//#define SINGLENOZZLE
+温度传感器
+TEMP_SENSOR_0 表示一号打印头的感温类型，TEMP_SENSOR_1 以此类推，设置为0表示不启用，其他设置为对应感温类型编号，具体查看下面代码的列表。现在的打印机一般使用的是100k感温电阻测温，所以类型编号选择1。
+TEMP_SENSOR_BED 表示热床的感温类型，只需要在这里把热床的感温类型设置好，就可以开启热床功能，一般热床感温类型编号也是1，和打印头一样。
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+//===========================================================================
+//============================= Thermal Settings ============================
+//===========================================================================
+//
+//--NORMAL IS 4.7kohm PULLUP!-- 1kohm pullup can be used on hotend sensor, using correct resistor and table
+//
+Temperature sensor settings:
+// -3 is thermocouple with MAX31855 (only for sensor 0)
+// -2 is thermocouple with MAX6675 (only for sensor 0)
+// -1 is thermocouple with AD595
+// 0 is not used
+// 1 is 100k thermistor - best choice for EPCOS 100k (4.7k pullup)
+// 2 is 200k thermistor - ATC Semitec 204GT-2 (4.7k pullup)
+// 3 is Mendel-parts thermistor (4.7k pullup)
+// 4 is 10k thermistor !! do not use it for a hotend. It gives bad resolution at high temp. !!
+// 5 is 100K thermistor - ATC Semitec 104GT-2 (Used in ParCan & J-Head) (4.7k pullup)
+// 6 is 100k EPCOS - Not as accurate as table 1 (created using a fluke thermocouple) (4.7k pullup)
+// 7 is 100k Honeywell thermistor 135-104LAG-J01 (4.7k pullup)
+// 71 is 100k Honeywell thermistor 135-104LAF-J01 (4.7k pullup)
+// 8 is 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup)
+// 9 is 100k GE Sensing AL03006-58.2K-97-G1 (4.7k pullup)
+// 10 is 100k RS thermistor 198-961 (4.7k pullup)
+// 11 is 100k beta 3950 1% thermistor (4.7k pullup)
+// 12 is 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup) (calibrated for Makibox hot bed)
+// 13 is 100k Hisens 3950 1% up to 300°C for hotend "Simple ONE " & "Hotend "All In ONE"
+// 20 is the PT100 circuit found in the Ultimainboard V2.x
+// 60 is 100k Maker's Tool Works Kapton Bed Thermistor beta=3950
+// 66 is 4.7M High Temperature thermistor from Dyze Design
+// 70 is the 100K thermistor found in the bq Hephestos 2
+//
+// 1k ohm pullup tables - This is not normal, you would have to have changed out your 4.7k for 1k
+// (but gives greater accuracy and more stable PID)
+// 51 is 100k thermistor - EPCOS (1k pullup)
+// 52 is 200k thermistor - ATC Semitec 204GT-2 (1k pullup)
+// 55 is 100k thermistor - ATC Semitec 104GT-2 (Used in ParCan & J-Head) (1k pullup)
+//
+// 1047 is Pt1000 with 4k7 pullup
+// 1010 is Pt1000 with 1k pullup (non standard)
+// 147 is Pt100 with 4k7 pullup
+// 110 is Pt100 with 1k pullup (non standard)
+// 998 and 999 are Dummy Tables. They will ALWAYS read 25°C or the temperature defined below.
+// Use it for Testing or Development purposes. NEVER for production machine.
+//#define DUMMY_THERMISTOR_998_VALUE 25
+//#define DUMMY_THERMISTOR_999_VALUE 100
+// :{ '0': "Not used",'1':"100k / 4.7k - EPCOS",'2':"200k / 4.7k - ATC Semitec 204GT-2",'3':"Mendel-parts / 4.7k",'4':"10k !! do not use for a hotend. Bad resolution at high temp. !!",'5':"100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)",'6':"100k / 4.7k EPCOS - Not as accurate as Table 1",'7':"100k / 4.7k Honeywell 135-104LAG-J01",'8':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT",'9':"100k / 4.7k GE Sensing AL03006-58.2K-97-G1",'10':"100k / 4.7k RS 198-961",'11':"100k / 4.7k beta 3950 1%",'12':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)",'13':"100k Hisens 3950 1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'",'20':"PT100 (Ultimainboard V2.x)",'51':"100k / 1k - EPCOS",'52':"200k / 1k - ATC Semitec 204GT-2",'55':"100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)",'60':"100k Maker's Tool Works Kapton Bed Thermistor beta=3950",'66':"Dyze Design 4.7M High Temperature thermistor",'70':"the 100K thermistor found in the bq Hephestos 2",'71':"100k / 4.7k Honeywell 135-104LAF-J01",'147':"Pt100 / 4.7k",'1047':"Pt1000 / 4.7k",'110':"Pt100 / 1k (non-standard)",'1010':"Pt1000 / 1k (non standard)",'-3':"Thermocouple + MAX31855 (only for sensor 0)",'-2':"Thermocouple + MAX6675 (only for sensor 0)",'-1':"Thermocouple + AD595",'998':"Dummy 1",'999':"Dummy 2" }
+#define TEMP_SENSOR_0 1
+#define TEMP_SENSOR_1 0
+#define TEMP_SENSOR_2 0
+#define TEMP_SENSOR_3 0
+#define TEMP_SENSOR_BED 0
+最大温度
+HEATER_0_MAXTEMP 表示一号打印头的最大温度，HEATER_1_MAXTEMP 以此类推。BED_MAXTEMP 表示热床的最大温度。
+温度数值建议根据实际情况保守设置，以免设置过大损坏硬件，或造成安全隐患，推荐打印头250，热床100，足以使用。
+
+1
+2
+3
+4
+5
+6
+7
+8
+// When temperature exceeds max temp, your heater will be switched off.
+// This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
+// You should use MINTEMP for thermistor short/failure protection.
+#define HEATER_0_MAXTEMP 275
+#define HEATER_1_MAXTEMP 275
+#define HEATER_2_MAXTEMP 275
+#define HEATER_3_MAXTEMP 275
+#define BED_MAXTEMP 150
+
+天猫无门槛优惠券  http://uquanfree.com
+
+挤出机保护
+EXTRUDE_MINTEMP 设置挤出机工作的最小温度，只有达到指定温度，挤出机电机才会转动，以此保护送丝轮挤不动造成磨损。所以如果发现挤出机不工作，请先查看打印头是否加热到指定温度。
+EXTRUDE_MAXLENGTH 设置挤出机挤出耗材的最大长度，防止误操作造成损失。
+
+1
+2
+#define EXTRUDE_MINTEMP 170
+#define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
+双轴联动结构
+如使用两个电机协同带两个轴的机型，如COREXY，COREXZ，COREYZ，去掉对应机型前面的注释即可。
+
+1
+2
+3
+4
+// Uncomment one of these options to enable CoreXY, CoreXZ, or CoreYZ kinematics
+//#define COREXY
+//#define COREXZ
+//#define COREYZ
+限位开关上拉
+ENDSTOPPULLUPS 去掉注释的话表示所有限位开关上拉，上拉表示对应引脚悬空的情况下默认是高电平，即限位开关开路状态下是H电平状态。Makeboard系列主板必须开启此项。如注释掉此项的话，可在下面代码单独配置XYZ轴MAX和MIN限位开关上拉状态。如去掉 ENDSTOPPULLUP_XMAX 注释可单独开启X-MAX限位开关上拉。
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+// coarse Endstop Settings
+#define ENDSTOPPULLUPS // Comment this out (using // at the start of the line) to disable the endstop pullup resistors
+#if DISABLED(ENDSTOPPULLUPS)
+// fine endstop settings: Individual pullups. will be ignored if ENDSTOPPULLUPS is defined
+//#define ENDSTOPPULLUP_XMAX
+//#define ENDSTOPPULLUP_YMAX
+//#define ENDSTOPPULLUP_ZMAX
+//#define ENDSTOPPULLUP_XMIN
+//#define ENDSTOPPULLUP_YMIN
+//#define ENDSTOPPULLUP_ZMIN
+//#define ENDSTOPPULLUP_ZMIN_PROBE
+#endif
+限位开关信号
+X_MIN_ENDSTOP_INVERTING 等系列参数设置为 true 表示将限位开关的信号反转，针对限位开关的常开和长闭状态，如触发状态不符合预期，可在此处修正。
+Z_MIN_PROBE_ENDSTOP_INVERTING 表示自动调平使用的探针电平状态，如不时触底时才触发，可在此反转。
+
+1
+2
+3
+4
+5
+6
+7
+8
+// Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
+#define X_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#define Y_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#define Z_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#define X_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#define Y_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#define Z_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+电机使能信号
+X_ENABLE_ON 等系列参数设置为 0 表示电机是低电平使能，1 表示高电平使能。Makeboard配套驱动芯片均为低电平使能，默认设置即可。如外接驱动器，如果电机不工作，不锁死，可将此参数设为 1 尝试。
+
+1
+2
+3
+4
+5
+6
+// For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
+// :{0:'Low',1:'High'}
+#define X_ENABLE_ON 0
+#define Y_ENABLE_ON 0
+#define Z_ENABLE_ON 0
+#define E_ENABLE_ON 0 // For all extruders
+禁用电机
+如特殊用途，如激光切割机一类，将指定轴，如 DISABLE_Z 设置为 ture 即可禁用Z轴电机。
+
+1
+2
+3
+4
+5
+// Disables axis stepper immediately when it's not being used.
+// WARNING: When motors turn off there is a chance of losing position accuracy!
+#define DISABLE_X false
+#define DISABLE_Y false
+#define DISABLE_Z false
+电机运动方向
+如果复位时候，打印头不是朝限位开关方向移动，可将对应轴，如 INVERT_X_DIR 设置为 true 即可反转X轴电机运动方向。
+如果挤出机电机挤出和回抽动作是反，将对应挤出机，如 INVERT_E0_DIR 设置为 true 即可反转一号挤出机运动方向。
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+#define INVERT_X_DIR false
+#define INVERT_Y_DIR true
+#define INVERT_Z_DIR false
+// @section extruder
+// For direct drive extruder v9 set to true, for geared extruder set to false.
+#define INVERT_E0_DIR false
+#define INVERT_E1_DIR false
+#define INVERT_E2_DIR false
+#define INVERT_E3_DIR false
+复位限制开关
+设置各轴复位时触发的限位开关，三角洲机型设置为 1，复位时最大值，三轴限位开关插在MAX接口。非三角洲机型一般设置为 -1，复位时为最小值，复位后坐标为 0,0,0，三轴限位开关插在MIN接口。
+
+1
+2
+3
+4
+5
+6
+// ENDSTOP SETTINGS:
+// Sets direction of endstops when homing; 1=MAX, -1=MIN
+// :[-1,1]
+#define X_HOME_DIR -1
+#define Y_HOME_DIR -1
+#define Z_HOME_DIR -1
+软限位
+min_software_endstops 设置为 true 开启的话会使打印头无法移动到负坐标，保护硬件不受损坏。实际三角洲机型此值无意义，非三角洲机型因为一般MIN方向有硬限位开关，也不会有问题，开不开启无所谓了。
+max_software_endstops 设置为 true 开启的话会使打印头无法移动超过 X_MAX_POS，Y_MAX_POS,Z_MAX_POS 设置的坐标，保护硬件不受损坏，一般需要开启，防误操作。
+
+1
+2
+#define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
+#define max_software_endstops true // If true, axis won't move to coordinates greater than the defined lengths below.
+复位坐标
+设置打印机的打印范围，X_MIN_POS，Y_MIN_POS，Z_MIN_POS，为打印机最小值方向复位的坐标，一般默认设置为 0 即可。
+X_MAX_POS，Y_MAX_POS，Z_MAX_POS 为打印机复位时的坐标值，在开启MAX软复位后，为打印机的最大打印范围。一般打印机在调试完后，通过G1指令移动打印头，M114查看当前坐标测得打印机最大打印范围。
+三角洲机型需特别注意 Z_MAX_POS 参数，为复位后打印头到平台之间的距离，可将此值设置大些，G28复位后，通过G1指令，移动Z轴，使打印头接触平台后，通过M114查看当前坐标，即可知道距离是多少了。
+
+1
+2
+3
+4
+5
+6
+7
+// Travel limits after homing (units are in mm)
+#define X_MIN_POS 0
+#define Y_MIN_POS 0
+#define Z_MIN_POS 0
+#define X_MAX_POS 200
+#define Y_MAX_POS 200
+#define Z_MAX_POS 200
+缺料检查
+FILAMENT_RUNOUT_SENSOR 去掉注释，即可开启缺料检测功能。一般使用光电限位开关装在送丝机耗材入口处，高电平表示正常送丝，低电平表示缺料。
+FIL_RUNOUT_INVERTING 设置为 true 可反转限位开关信号。
+ENDSTOPPULLUP_FIL_RUNOUT 去掉注释，表示缺料检测引脚默认上拉，一般默认开启。
+FILAMENT_RUNOUT_SCRIPT 设置缺料检测激活时运行的脚本，一般为 M600，使打印机暂时打印，换好耗材后，可继续打印。
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+//===========================================================================
+//========================= Filament Runout Sensor ==========================
+//===========================================================================
+//#define FILAMENT_RUNOUT_SENSOR // Uncomment for defining a filament runout sensor such as a mechanical or opto endstop to check the existence of filament
+// In RAMPS uses servo pin 2. Can be changed in pins file. For other boards pin definition should be made.
+// It is assumed that when logic high = filament available
+// when logic low = filament ran out
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+const bool FIL_RUNOUT_INVERTING = false; // set to true to invert the logic of the sensor.
+#define ENDSTOPPULLUP_FIL_RUNOUT // Uncomment to use internal pullup for filament runout pins if the sensor is defined.
+#define FILAMENT_RUNOUT_SCRIPT "M600"
+#endif
+针对Makeboard主板，可以打开 pins_RAMPS.h 文件，搜索 FIL_RUNOUT_PIN，看到如下代码：
+
+1
+2
+// define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
+#define FIL_RUNOUT_PIN 4
+将缺料检测引脚设置为任意空闲的限制开关，如 X_MAX_PIN，设置值为 2，将缺料检测光电限位开关插入 X-MAX 插座即可。
+
+自动调平
+AUTO_BED_LEVELING_FEATURE 去掉注释可开启自动调平功能，此处不做过多介绍，请看后续自动调平详细教程。
+
+1
+//#define AUTO_BED_LEVELING_FEATURE // Delete the comment to enable (remove // at the start of the line)
+复位速度
+HOMING_FEEDRATE_XY 设置复位时XY轴的移动速度。
+HOMING_FEEDRATE_Z 设置复位时Z轴的移动速度，如果用丝杆的话，需要设置的比用皮带慢很多。
+
+1
+2
+3
+// Homing speeds (mm/m)
+#define HOMING_FEEDRATE_XY (50*60)
+#define HOMING_FEEDRATE_Z (4*60)
+电机步进数
+DEFAULT_AXIS_STEPS_PER_UNIT 后面的四个数字 {80,80,4000,500} ，分别表示XYZ和挤出机电机的步进数。
+
+1
+#define DEFAULT_AXIS_STEPS_PER_UNIT {80,80,4000,500} // default steps per unit for Ultimaker
+XYZ电机步进公式为：
+
+1
+( 360 / 电机步距角 * 细分数 ) / (同步带齿距 * 齿数)
+一般现在3D打印机使用的42步进电机步距角为1.8度，细分数根据主板上跳帽的设置，一般设置成16，同步带齿距一般使用的是2mm的，齿数一般为16或者20齿，可以自己数数。如果Z轴使丝杠的话，直接除以丝杆的导程即可。这样默认情况下可以算得：
+
+1
+( 360 / 1.8 * 16) / ( 2 * 20) = 80
+挤出机步进数没有很精确的计算公式，目前通常使用的近程挤出机设置为100，远程挤出机设置为150，然后根据实际打印的出丝多少微调，要出多点步进数就调大，出少点就调小。
+
+电机最大移动速度
+DEFAULT_MAX_FEEDRATE 后面的四个数字 {300, 300, 5, 25} ，分别表示XYZ和挤出机电机的最大移动速度。在实际测试不失步的情况下设置的越大越好，此值和电机步进数相关，步进数越大，对应的移动速度设置越小。所以使用大细分数或者丝杆需要减小此值才能保证电机不失步。
+
+1
+#define DEFAULT_MAX_FEEDRATE {300, 300, 5, 25} // (mm/sec)
+电机最大加速度
+DEFAULT_MAX_ACCELERATION 后面的四个数字 {3000,3000,100,10000} ，分别表示XYZ和挤出机电机的最大加速度。三角洲机型的加速度可以设置的大些，其他机型小些，原则也使实际测试，在不失步的情况下设置的越大越好。
+
+1
+#define DEFAULT_MAX_ACCELERATION {3000,3000,100,10000} // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+电机默认加速度
+DEFAULT_ACCELERATION 设置X，Y，Z和E轴电机的默认移动加速度。
+DEFAULT_RETRACT_ACCELERATION 设置E轴电机回抽时候的默认加速度。
+DEFAULT_TRAVEL_ACCELERATION* 设置E轴电机挤出时候的默认加速度。
+
+1
+2
+3
+#define DEFAULT_ACCELERATION 3000 // X, Y, Z and E acceleration in mm/s^2 for printing moves
+#define DEFAULT_RETRACT_ACCELERATION 3000 // E acceleration in mm/s^2 for retracts
+#define DEFAULT_TRAVEL_ACCELERATION 3000 // X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
+无需加速距离
+DEFAULT_XYJERK，DEFAULT_ZJERK，DEFAULT_EJERK 分别设置X，Y，Z和E轴电机移动时，速度改变时无需加速过程的距离。如果使用三角洲机型，需要将 DEFAULT_ZJERK 值设置的和 DEFAULT_XYJERK 一样，要不容易失步。
+
+1
+2
+3
+4
+// The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
+#define DEFAULT_XYJERK 20.0 // (mm/sec)
+#define DEFAULT_ZJERK 0.4 // (mm/sec)
+#define DEFAULT_EJERK 5.0 // (mm/sec)
+EEPROM
+EEPROM_SETTINGS 去掉注释，可开启EEPROM功能，打印机部分配置参数将保存在打印机中，可通过液晶屏实时调节，无需重刷固件。配置固件阶段推荐关闭，调试好机器后再开启，要不很可能有参数给代码中调节后不会生效，造成误判断。
+
+1
+2
+3
+4
+5
+6
+// The microcontroller can store settings in the EEPROM, e.g. max velocity...
+// M500 - stores parameters in EEPROM
+// M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
+// M502 - reverts to the default "factory settings". You still need to store them in EEPROM afterwards if you want to.
+//define this to enable EEPROM support
+//#define EEPROM_SETTINGS
+预加热
+分别设置液晶屏菜单选择预加热PLA和ABS的打印头，热床温度，及冷却风扇转速。
+
+1
+2
+3
+4
+5
+6
+7
+8
+// Preheat Constants
+#define PREHEAT_1_TEMP_HOTEND 180
+#define PREHEAT_1_TEMP_BED 70
+#define PREHEAT_1_FAN_SPEED 0 // Value from 0 to 255
+#define PREHEAT_2_TEMP_HOTEND 240
+#define PREHEAT_2_TEMP_BED 110
+#define PREHEAT_2_FAN_SPEED 0 // Value from 0 to 255
+液晶屏语言
+Marlin固件现在的最新版本直接官方支持中文，LCD_LANGUAGE 设置为 cn 即可，前提使需要使用12864液晶屏。
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+//
+// LCD LANGUAGE
+//
+// Here you may choose the language used by Marlin on the LCD menus, the following
+// list of languages are available:
+// en, an, bg, ca, cn, cz, de, el, el-gr, es, eu, fi, fr, gl, hr, it,
+// kana, kana_utf8, nl, pl, pt, pt_utf8, pt-br, pt-br_utf8, ru, test
+//
+// :{'en':'English','an':'Aragonese','bg':'Bulgarian','ca':'Catalan','cn':'Chinese','cz':'Czech','de':'German','el':'Greek','el-gr':'Greek (Greece)','es':'Spanish','eu':'Basque-Euskera','fi':'Finnish','fr':'French','gl':'Galician','hr':'Croatian','it':'Italian','kana':'Japanese','kana_utf8':'Japanese (UTF8)','nl':'Dutch','pl':'Polish','pt':'Portuguese','pt-br':'Portuguese (Brazilian)','pt-br_utf8':'Portuguese (Brazilian UTF8)','pt_utf8':'Portuguese (UTF8)','ru':'Russian','test':'TEST'}
+//
+#define LCD_LANGUAGE en
+旋转编码器方向
+REVERSE_ENCODER_DIRECTION 去掉注释，反转液晶屏上调节数值旋转编码器方向。
+REVERSE_MENU_DIRECTION 去掉注释，反转液晶屏上选择菜单时旋转编码器方向。
+有些液晶屏旋转编码器方向做反了，需要软件修正，Makeboard配套液晶屏不需要，默认即可。
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+/**
+* Encoder Direction Options
+*
+* Test your encoder's behavior first with both options disabled.
+*
+* Reversed Value Edit and Menu Nav? Enable REVERSE_ENCODER_DIRECTION.
+* Reversed Menu Navigation only? Enable REVERSE_MENU_DIRECTION.
+* Reversed Value Editing only? Enable BOTH options.
+*/
+//
+// This option reverses the encoder direction everywhere
+//
+// Set this option if CLOCKWISE causes values to DECREASE
+//
+//#define REVERSE_ENCODER_DIRECTION
+//
+// This option reverses the encoder direction for navigating LCD menus.
+//
+// If CLOCKWISE normally moves DOWN this makes it go UP.
+// If CLOCKWISE normally moves UP this makes it go DOWN.
+//
+//#define REVERSE_MENU_DIRECTION
+独立轴复位菜单
+INDIVIDUAL_AXIS_HOMING_MENU 去掉注释，可在液晶屏上增加单独的复位X，Y，Z轴的菜单，方便调试。
+
+1
+2
+3
+4
+5
+6
+//
+// Individual Axis Homing
+//
+// Add individual axis homing items (Home X, Home Y, and Home Z) to the LCD menu.
+//
+//#define INDIVIDUAL_AXIS_HOMING_MENU
+液晶屏蜂鸣器
+SPEAKER 去掉注释，可开始液晶屏上的蜂鸣器，旋转编码旋转或者按下时蜂鸣器会发声。
+
+1
+2
+3
+4
+5
+6
+7
+//
+// SPEAKER/BUZZER
+//
+// If you have a speaker that can produce tones, enable it here.
+// By default Marlin assumes you have a buzzer with a fixed frequency.
+//
+//#define SPEAKER
+液晶屏2004
+去掉 REPRAP_DISCOUNT_SMART_CONTROLLER 行的注释，可开启2004液晶屏功能。特别强调，如果使用非配套Makeboard液晶屏，液晶屏无法使用的话，可能时液晶屏牛角插座缺口方向是反的，EXP1和EXP2线的接头凸起处换各方向强行插入即可。
+
+1
+2
+3
+4
+5
+6
+7
+//
+// RepRapDiscount Smart Controller.
+// http://reprap.org/wiki/RepRapDiscount_Smart_Controller
+//
+// Note: Usually sold with a white PCB.
+//
+#define REPRAP_DISCOUNT_SMART_CONTROLLER
+液晶屏12864
+去掉 REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER 行的注释，可开启12864液晶屏功能。需要u8glib库文件，否则编译无法通过，将网盘下载的 u8glib_arduino_v1.18.1.zip 文件解压到Arduino的 libraries 目录即可。
+
+1
+2
+3
+4
+5
+//
+// RepRapDiscount FULL GRAPHIC Smart Controller
+// http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
+//
+//#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+天猫无门槛优惠券  http://uquanfree.com
