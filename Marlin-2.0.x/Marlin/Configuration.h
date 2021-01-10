@@ -70,7 +70,7 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "3d printer by ihuotui" // Who made the changes.
 //#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
 /**
@@ -425,10 +425,10 @@
 #define TEMP_SENSOR_7 0
 #define TEMP_SENSOR_BED 1
 #define TEMP_SENSOR_PROBE 0
-#define TEMP_SENSOR_CHAMBER 1 //启用箱体传感器
+#define TEMP_SENSOR_CHAMBER 1 //启用箱体传感器 1
 
 
-#define TEMP_CHAMBER_PIN    15    //TODO 定义箱体温度传感器引脚  https://blog.csdn.net/babyshan1/article/details/109176815
+#define TEMP_CHAMBER_PIN    15    //定义箱体温度传感器引脚  https://blog.csdn.net/babyshan1/article/details/109176815
 
 //TODO 物体冷却风扇 https://www.instructables.com/Adding-Cooling-Fan-to-Your-3D-Printer/
 
@@ -998,7 +998,7 @@
 #define PROBING_MARGIN 10
 
 // X and Y axis travel speed (mm/min) between probes
-#define XY_PROBE_SPEED (8000)
+#define XY_PROBE_SPEED (133*60)
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
