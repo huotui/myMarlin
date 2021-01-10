@@ -120,6 +120,9 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
+ //TODO 注意simply3d 使用时 需要设置  参考忽略start信号
+ //TODO  To disable this option, go to Tools > Firmware Configuration, and then select the Communication tab and disable the “wait for startup command” option.
+ //TODO  https://www.simplify3d.com/support/faq/#faq-4630 https://www.simplify3d.com/support/faq/#quest-6354
 #define BAUDRATE 250000
 
 // Enable the Bluetooth serial interface on AT90USB devices
