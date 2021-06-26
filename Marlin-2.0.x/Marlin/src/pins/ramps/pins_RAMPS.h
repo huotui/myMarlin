@@ -67,9 +67,9 @@
 //
 #ifndef SERVO0_PIN
   #ifdef IS_RAMPS_13
-    #define SERVO0_PIN                         7
+    #define SERVO0_PIN                         19
   #else
-    #define SERVO0_PIN                        11
+    #define SERVO0_PIN                        19
   #endif
 #endif
 #ifndef SERVO1_PIN
