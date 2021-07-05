@@ -482,14 +482,14 @@
 #define E5_AUTO_FAN_PIN -1
 #define E6_AUTO_FAN_PIN -1
 #define E7_AUTO_FAN_PIN -1
-#define CHAMBER_AUTO_FAN_PIN -1
+#define CHAMBER_AUTO_FAN_PIN 2 //原x-max 机箱风扇 需要增加引脚
 
 //挤出风扇
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 60
 #define EXTRUDER_AUTO_FAN_SPEED 60   // 255 == full speed
-//TODO 机箱风扇 需要增加引脚
+//机箱风扇
 #define CHAMBER_AUTO_FAN_TEMPERATURE 30
-#define CHAMBER_AUTO_FAN_SPEED 40
+#define CHAMBER_AUTO_FAN_SPEED 255
 
 /**
  * Part-Cooling Fan Multiplexer
